@@ -7,4 +7,4 @@
  
  The SVG-File is then parsed using a [DOMParser](https://developer.mozilla.org/en-US/docs/Web/API/DOMParser), and non empty fill attributes are collected from the *polygon* and *path* tags.  
  
- These values are then stored in actionable buttons. Clicking a button selects the color we want to replace in the SVG, and subsequent pick of a color from the *Color Picker* changes the all instances of the selected color to the new color.
+ These values are then stored in actionable buttons. Clicking a button selects the color we want to replace in the SVG, and subsequent pick of a color from the *Color Picker* changes all instances of the selected color to the new color.
