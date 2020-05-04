@@ -1,0 +1,118 @@
+<div>
+  <label for="input-file">Specify a file:</label><br>
+  <input type="file" id="input-file">
+</div>
+
+<div id="image-placeholder"> </div>
+<div><input type="color" id="color-pallete"></div>
+ 
+<textarea id="content-target"></textarea>
+
+<ul id="color-buttons"> </ul>
+
+<script>
+  var filedom;
+
+  document.getElementById('input-file')
+    .addEventListener('change', getFile)
+
+  document.getElementById('color-pallete')
+    .addEventListener('input', changeColor)
+
+  function getFile(event) {
+    const input = event.target;
+    if ('files' in input && input.files.length > 0) {
+      placeFileContent(
+        document.getElementById('content-target'),
+        input.files[0])
+    }
+  }
+
+  function changeColor(event) {
+    const input = event.target.value;
+    setButtonState(input);
+    setButtonState.state = undefined;
+  }
+
+  function placeFileContent(target, file) {
+    readFileContent(file).then(content => {
+      var parser = new DOMParser();
+      var dom = parser.parseFromString(content, "application/xml");
+      filedom = dom;
+      document.getElementById("image-placeholder").innerHTML = dom.getElementsByTagName("svg")[0].outerHTML;
+      var colors = new Set();
+      var pathElements = dom.getElementsByTagName("path");
+      var polyElements = dom.getElementsByTagName("polygon");
+      for(var i=0; i<pathElements.length; ++i) {
+        if(pathElements[i].hasAttribute("fill")) {
+          var color = pathElements[i].getAttribute("fill");
+          if(color != "none") {
+            colors.add(pathElements[i].getAttribute("fill"));
+          }
+        }
+      }
+      for(var i=0; i<polyElements.length; ++i) {
+        if(polyElements[i].hasAttribute("fill")) {
+          var color = polyElements[i].getAttribute("fill");
+          if(color != "none") {
+            colors.add(polyElements[i].getAttribute("fill"));
+          }
+        }
+      }
+      
+      for(let color of colors) {
+        var inputElement = document.createElement('input');
+        inputElement.type = "button";
+        inputElement.style.backgroundColor = color;
+        inputElement.addEventListener('click', function(){
+            setButtonState(color);
+        });
+        document.body.appendChild(inputElement);
+      }
+    }).catch(error => console.log(error))
+  }
+
+  function setButtonState(color) {
+    if(setButtonState.state == undefined) {
+      setButtonState.state = color;
+      return;
+    }
+
+    if(setButtonState.state != undefined) {
+      // Make a function for color changing
+      var color1 = setButtonState.state;
+      var color2 = color;
+      
+      var pathElements = filedom.getElementsByTagName("path");
+      var polyElements = filedom.getElementsByTagName("polygon");
+      for(var i=0; i<pathElements.length; ++i) {
+        if(pathElements[i].hasAttribute("fill")) {
+          var c = pathElements[i].getAttribute("fill");
+          if(c == color1) {
+            pathElements[i].setAttribute("fill", color2);
+          }
+        }
+      }
+      for(var i=0; i<polyElements.length; ++i) {
+        if(polyElements[i].hasAttribute("fill")) {
+          var c = polyElements[i].getAttribute("fill");
+          if(c == color1) {
+            polyElements[i].setAttribute("fill", color2);
+          }
+        }
+      }
+      
+      document.getElementById("image-placeholder").innerHTML = filedom.getElementsByTagName("svg")[0].outerHTML;
+      setButtonState.state = undefined;
+    }
+  }
+
+  function readFileContent(file) {
+    const reader = new FileReader()
+    return new Promise((resolve, reject) => {
+      reader.onload = event => resolve(event.target.result)
+      reader.onerror = error => reject(error)
+      reader.readAsText(file)
+    })
+  }
+</script>
