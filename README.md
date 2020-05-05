@@ -9,4 +9,4 @@
  
  These values are then stored in actionable buttons. Clicking a button selects the color we want to replace in the SVG, and subsequent pick of a color from the *Color Picker* changes all instances of the selected color to the new color.
  
- A freely obtained svg from [svgstudio](https://svgstudio.com/pages/free-sample) was used for this program.
+ A freely obtained svg from [svgstudio](https://svgstudio.com/pages/free-sample) in included in the repository .
